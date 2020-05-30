@@ -14,6 +14,8 @@ import Moya_ObjectMapper
 
 class ViewController: UIViewController {
     
+    @IBOutlet weak var button: UIButton!
+    @IBOutlet weak var textField: UITextField!
     @IBOutlet weak var label: UILabel!
     private let viewModel = ViewModel()
     fileprivate let disposeBag = DisposeBag()
@@ -81,17 +83,28 @@ class ViewController: UIViewController {
         //        }
         
         
-        viewModel.getTotal()
         viewModel.total.observeOn(MainScheduler.instance)
             .map{"total: \($0)"}
             .bind(to: self.label.rx.text)
             .disposed(by: disposeBag)
         
-        viewModel.error.subscribe { (msg) in
-            print(msg.element)
+        viewModel.error.observeOn(MainScheduler.instance)
+            .map{"Error \($0)"}
+            .bind(to: self.label.rx.text)
+            .disposed(by: disposeBag)
+        
+        self.textField.rx.text.asObservable()
+            .map{($0! as NSString).doubleValue}
+            .throttle(.milliseconds(3), scheduler: MainScheduler.instance)
+            .subscribe { [weak self](event) in
+                self?.viewModel.getTotal(lat: event.element!,lng: event.element!)
         }.disposed(by: disposeBag)
         
         
+        self.button.rx.tap.subscribe { [weak self] (event) in
+            print("tap")
+            self?.viewModel.getTotal(lat: 23, lng: 181)
+        }.disposed(by: disposeBag)
         
     }
     

@@ -16,9 +16,9 @@ class ViewModel {
     private let disposeBag = DisposeBag()
     var total: PublishSubject<Int> = PublishSubject()
     var error: PublishSubject<String> = PublishSubject()
-    
-    func getTotal(){
-        API.shared.request(NewYelpServices.Search(lat: 0, lng: 181)).subscribe(onSuccess: { [weak self](model) in
+   
+    func getTotal(lat: Double, lng: Double){
+        API.shared.request(NewYelpServices.Search(lat: lat, lng: lng)).subscribe(onSuccess: { [weak self](model) in
             if model.total != nil{
                 self?.total.onNext(model.total!)
             }
